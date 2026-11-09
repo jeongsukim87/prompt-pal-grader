@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 프롬프트 연습소 — 나만의 프롬프트 채점하기</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --background: #fdfaf0;
+      --foreground: #4d2f2a;
+      --card: #ffffff;
+      --card-foreground: #4d2f2a;
+      --primary: #ff7d7d;
+      --primary-hover: #ff6666;
+      --primary-foreground: #fffbf5;
+      --secondary: #b9f5f8;
+      --secondary-foreground: #134a58;
+      --muted: #f6f2e3;
+      --muted-foreground: #876a60;
+      --accent: #ffcafa;
+      --accent-foreground: #5e3050;
+      --destructive: #ed4042;
+      --border: #eedacb;
+
+      --tip-fox: #ffe4cf;
+      --tip-fox-fg: #893a0e;
+      --tip-panda: #c0f7d8;
+      --tip-panda-fg: #005d40;
+      --tip-koala: #caeeff;
+      --tip-koala-fg: #005580;
+      --tip-lion: #ffefb2;
+      --tip-lion-fg: #794e00;
+      --tip-frog: #d9f2c1;
+      --tip-frog-fg: #2c5a21;
+
+      --font-display: 'Jua', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+      --font-body: 'Gowun Dodum', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--background);
+      color: var(--foreground);
+      font-family: var(--font-body);
+      line-height: 1.6;
+      min-height: 100vh;
+      background-image:
+        radial-gradient(circle at 12% 18%, rgba(255, 218, 252, 0.65), transparent 42%),
+        radial-gradient(circle at 88% 12%, rgba(173, 243, 247, 0.65), transparent 40%),
+        radial-gradient(circle at 50% 110%, rgba(217, 242, 193, 0.55), transparent 55%);
+      background-attachment: fixed;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, h4, .font-display {
+      font-family: var(--font-display);
+      font-weight: 400;
+      letter-spacing: -0.01em;
+    }
+
+    .main-container {
+      max-width: 1024px;
+      margin: 0 auto;
+      padding: 3.2rem 1.5rem 4.5rem;
+    }
+
+    /* 상단 헤더 */
+    .hero-header {
+      text-align: center;
+      margin-bottom: 2.8rem;
+    }
+
+    .hero-animals {
+      font-size: 3.2rem;
+      line-height: 1.15;
+      letter-spacing: 0.15rem;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
+      user-select: none;
+    }
+
+    .hero-title {
+      margin-top: 0.75rem;
+      font-size: 2.5rem;
+      color: var(--foreground);
+    }
+
+    .hero-subtitle {
+      margin-top: 0.5rem;
+      font-size: 1rem;
+      color: var(--muted-foreground);
+    }
+
+    /* 5가지 주의점 섹션 */
+    .tips-section {
+      margin-bottom: 2.6rem;
+    }
+
+    .tips-header {
+      text-align: center;
+      margin-bottom: 1.35rem;
+    }
+
+    .tips-heading {
+      font-size: 1.85rem;
+      color: var(--foreground);
+    }
+
+    .tips-subheading {
+      margin-top: 0.4rem;
+      font-size: 0.9rem;
+      color: var(--muted-foreground);
+    }
+
+    .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    @media (max-width: 900px) {
+      .tips-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 520px) {
+      .tips-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .tip-card {
+      display: flex;
+      flex-direction: column;
+      border-radius: 1.65rem;
+      padding: 1.35rem 1.25rem;
+      border: 1.5px solid rgba(255, 255, 255, 0.75);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .tip-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 18px rgba(77, 47, 42, 0.08);
+    }
+
+    .tip-emoji {
+      font-size: 2.3rem;
+      line-height: 1;
+      margin-bottom: 0.85rem;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+    }
+
+    .tip-title {
+      font-size: 1.02rem;
+      line-height: 1.38;
+      word-break: keep-all;
+    }
+
+    .tip-desc {
+      margin-top: 0.55rem;
+      font-size: 0.82rem;
+      line-height: 1.58;
+      opacity: 0.88;
+      word-break: keep-all;
+    }
+
+    .tip-fox { background-color: var(--tip-fox); color: var(--tip-fox-fg); }
+    .tip-panda { background-color: var(--tip-panda); color: var(--tip-panda-fg); }
+    .tip-koala { background-color: var(--tip-koala); color: var(--tip-koala-fg); }
+    .tip-lion { background-color: var(--tip-lion); color: var(--tip-lion-fg); }
+    .tip-frog { background-color: var(--tip-frog); color: var(--tip-frog-fg); }
+
+    /* 미션 및 입력 카드 */
+    .mission-card {
+      background-color: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 1.75rem;
+      padding: 2rem;
+      box-shadow: 0 4px 16px rgba(77, 47, 42, 0.04);
+    }
+
+    .mission-header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .mission-info {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      flex: 1;
+      min-width: 260px;
+    }
+
+    .mission-emoji {
+      font-size: 3.1rem;
+      line-height: 1;
+      filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.08));
+    }
+
+    .mission-badge {
+      display: inline-block;
+      background-color: var(--primary);
+      color: var(--primary-foreground);
+      font-family: var(--font-display);
+      font-size: 0.76rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+    }
+
+    .mission-title {
+      margin-top: 0.45rem;
+      font-size: 1.6rem;
+      color: var(--foreground);
+    }
+
+    .mission-desc {
+      margin-top: 0.25rem;
+      font-size: 0.92rem;
+      color: var(--muted-foreground);
+    }
+
+    /* 우측 상단 컨트롤 (미션 선택 & 설정) */
+    .mission-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .mission-select {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      color: var(--foreground);
+      background-color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .mission-select:hover {
+      background-color: #efe9d5;
+    }
+
+    .mode-toggle-pill {
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      background-color: var(--background);
+      color: var(--muted-foreground);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.42rem 0.85rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .mode-toggle-pill:hover {
+      background-color: var(--muted);
+      color: var(--foreground);
+    }
+
+    /* 설정 서랍 (Gemini API 등) */
+    .settings-drawer {
+      margin-top: 1rem;
+      padding: 1rem 1.2rem;
+      border-radius: 1.25rem;
+      background-color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .settings-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .mode-tabs {
+      display: inline-flex;
+      background: var(--card);
+      padding: 0.25rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+    }
+
+    .mode-tab {
+      border: none;
+      background: transparent;
+      font-family: var(--font-display);
+      font-size: 0.82rem;
+      padding: 0.38rem 0.85rem;
+      border-radius: 999px;
+      color: var(--muted-foreground);
+      cursor: pointer;
+    }
+
+    .mode-tab.active {
+      background-color: var(--primary);
+      color: var(--primary-foreground);
+    }
+
+    .api-input-row {
+      margin-top: 0.75rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .api-key-input {
+      flex: 1;
+      min-width: 240px;
+      padding: 0.5rem 0.85rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--border);
+      background: var(--card);
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+    }
+
+    /* 생각 열기 힌트 토글 */
+    .hint-row {
+      margin-top: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .hint-btn {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-family: var(--font-display);
+      font-size: 0.92rem;
+      cursor: pointer;
+      text-underline-offset: 4px;
+    }
+
+    .hint-btn:hover {
+      text-decoration: underline;
+    }
+
+    .hint-box {
+      margin-top: 0.65rem;
+      border-radius: 1.15rem;
+      background-color: var(--tip-lion);
+      color: var(--tip-lion-fg);
+      padding: 1rem 1.2rem;
+      font-size: 0.88rem;
+      line-height: 1.65;
+    }
+
+    /* 입력창 */
+    .input-section {
+      margin-top: 1.2rem;
+    }
+
+    .input-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .input-label {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      color: var(--foreground);
+    }
+
+    .char-count {
+      font-size: 0.78rem;
+      color: var(--muted-foreground);
+    }
+
+    .prompt-textarea {
+      width: 100%;
+      min-height: 112px;
+      border-radius: 1.15rem;
+      border: 1.5px solid var(--border);
+      background-color: rgba(253, 250, 240, 0.65);
+      padding: 0.9rem 1rem;
+      font-family: var(--font-body);
+      font-size: 0.98rem;
+      color: var(--foreground);
+      resize: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .prompt-textarea::placeholder {
+      color: #a68b81;
+    }
+
+    .prompt-textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(255, 125, 125, 0.18);
+    }
+
+    .error-msg {
+      margin-top: 0.75rem;
+      border-radius: 1rem;
+      background-color: rgba(237, 64, 66, 0.1);
+      color: var(--destructive);
+      padding: 0.65rem 1rem;
+      font-size: 0.88rem;
+    }
+
+    /* 버튼 영역 */
+    .button-row {
+      margin-top: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .btn-grade {
+      height: 3rem;
+      padding: 0 2rem;
+      border-radius: 999px;
+      border: none;
+      background-color: var(--primary);
+      color: var(--primary-foreground);
+      font-family: var(--font-display);
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(255, 125, 125, 0.32);
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+
+    .btn-grade:hover:not(:disabled) {
+      background-color: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+
+    .btn-next {
+      height: 3rem;
+      padding: 0 1.85rem;
+      border-radius: 999px;
+      border: none;
+      background-color: var(--secondary);
+      color: var(--secondary-foreground);
+      font-family: var(--font-display);
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(19, 74, 88, 0.08);
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    .btn-next:hover:not(:disabled) {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+
+    /* 채점 결과 박스 */
+    .result-container {
+      margin-top: 1.75rem;
+      border-radius: 1.65rem;
+      border: 1.5px solid var(--border);
+      background-color: var(--card);
+      padding: 2rem;
+      box-shadow: 0 2px 10px rgba(77, 47, 42, 0.03);
+    }
+
+    .result-top-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .result-trophy {
+      font-size: 3.25rem;
+      line-height: 1;
+    }
+
+    .result-score-line {
+      margin-top: 0.65rem;
+      display: flex;
+      align-items: flex-end;
+      gap: 0.3rem;
+    }
+
+    .result-score-num {
+      font-family: var(--font-display);
+      font-size: 3.75rem;
+      line-height: 1;
+      color: var(--primary);
+    }
+
+    .result-score-max {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      color: var(--muted-foreground);
+      margin-bottom: 0.3rem;
+    }
+
+    .result-grade-pill {
+      margin-top: 0.7rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      border-radius: 999px;
+      background-color: var(--accent);
+      color: var(--accent-foreground);
+      padding: 0.38rem 1rem;
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+    }
+
+    .result-bar-bg {
+      margin-top: 1.4rem;
+      height: 1rem;
+      width: 100%;
+      border-radius: 999px;
+      background-color: var(--muted);
+      overflow: hidden;
+    }
+
+    .result-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background-color: var(--primary);
+      width: 0%;
+      transition: width 0.7s ease-out;
+    }
+
+    .criteria-stack {
+      margin-top: 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .criterion-box {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.8rem;
+      border-radius: 1.15rem;
+      border: 1px solid var(--border);
+      background-color: rgba(253, 250, 240, 0.65);
+      padding: 1rem 1.15rem;
+    }
+
+    .criterion-check {
+      font-size: 1.2rem;
+      margin-top: 0.05rem;
+    }
+
+    .criterion-content {
+      flex: 1;
+    }
+
+    .criterion-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .criterion-title {
+      font-family: var(--font-display);
+      font-size: 0.94rem;
+      color: var(--foreground);
+    }
+
+    .criterion-pts {
+      font-family: var(--font-display);
+      font-size: 0.92rem;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .criterion-desc {
+      margin-top: 0.25rem;
+      font-size: 0.84rem;
+      line-height: 1.55;
+      color: var(--muted-foreground);
+    }
+
+    .teacher-comment-box {
+      margin-top: 1.35rem;
+      border-radius: 1.15rem;
+      background-color: rgba(185, 245, 248, 0.6);
+      color: var(--secondary-foreground);
+      padding: 1.2rem 1.3rem;
+    }
+
+    /* 스스로 고쳐쓰기 가이드 (답을 직접 알려주지 않고 수정 방향을 안내) */
+    .revision-guide-box {
+      margin-top: 1.15rem;
+      border-radius: 1.25rem;
+      background-color: var(--tip-frog);
+      color: var(--tip-frog-fg);
+      padding: 1.25rem 1.35rem;
+      border: 1px solid rgba(44, 90, 33, 0.15);
+    }
+
+    .revision-guide-list {
+      margin-top: 0.7rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      list-style: none;
+    }
+
+    .revision-guide-item {
+      background-color: rgba(255, 255, 255, 0.82);
+      border-radius: 0.85rem;
+      padding: 0.75rem 1rem;
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: #1f4216;
+    }
+
+    .retry-btn {
+      margin-top: 0.9rem;
+      font-family: var(--font-display);
+      font-size: 0.86rem;
+      padding: 0.5rem 1.1rem;
+      border-radius: 999px;
+      border: 1px solid rgba(44, 90, 33, 0.25);
+      background-color: #ffffff;
+      color: var(--tip-frog-fg);
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .retry-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 8px rgba(44, 90, 33, 0.12);
+    }
+
+    /* 진행 현황 섹션 */
+    .progress-history-card {
+      margin-top: 2.2rem;
+      border-radius: 1.65rem;
+      border: 1.5px solid var(--border);
+      background-color: var(--card);
+      padding: 1.5rem 1.75rem;
+      box-shadow: 0 2px 10px rgba(77, 47, 42, 0.03);
+    }
+
+    .history-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .history-items {
+      margin-top: 1rem;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .history-li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      background-color: rgba(253, 250, 240, 0.65);
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .small-pill-btn {
+      font-family: var(--font-display);
+      font-size: 0.78rem;
+      padding: 0.32rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background-color: var(--background);
+      color: var(--foreground);
+      cursor: pointer;
+    }
+
+    .page-footer {
+      margin-top: 3rem;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--muted-foreground);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <main class="main-container">
+    <!-- 1. 상단 헤더 -->
+    <header class="hero-header">
+      <div class="hero-animals" aria-hidden="true">🦊 🐼 🐨 🦁 🐸</div>
+      <h1 class="hero-title">AI 프롬프트 연습소</h1>
+      <p class="hero-subtitle">미션을 받고 프롬프트를 작성하면 AI 선생님이 자동으로 채점해줘요! ✨</p>
+    </header>
+
+    <!-- 2. 프롬프트 작성 5가지 주의점 -->
+    <section class="tips-section">
+      <div class="tips-header">
+        <h2 class="tips-heading">🐾 프롬프트 작성 5가지 주의점</h2>
+        <p class="tips-subheading">좋은 프롬프트를 쓰려면 이것만 기억해요!</p>
+      </div>
+      <div class="tips-grid">
+        <div class="tip-card tip-fox">
+          <div class="tip-emoji" aria-hidden="true">🦊</div>
+          <h3 class="tip-title font-display">개인정보는 넣지 마세요</h3>
+          <p class="tip-desc">이름, 전화번호, 주소, 학교명 등은 AI에게 알려주지 않아도 돼요</p>
+        </div>
+        <div class="tip-card tip-panda">
+          <div class="tip-emoji" aria-hidden="true">🐼</div>
+          <h3 class="tip-title font-display">구체적으로 말해줘야 해요</h3>
+          <p class="tip-desc">"알려줘"보다 "이유 3가지를 쉬운 말로 알려줘"처럼 자세할수록 좋아요</p>
+        </div>
+        <div class="tip-card tip-koala">
+          <div class="tip-emoji" aria-hidden="true">🐨</div>
+          <h3 class="tip-title font-display">역할을 정해줄 수 있어요</h3>
+          <p class="tip-desc">"선생님처럼 설명해줘", "요리사처럼 알려줘" 하면 더 잘 답해줘요</p>
+        </div>
+        <div class="tip-card tip-lion">
+          <div class="tip-emoji" aria-hidden="true">🦁</div>
+          <h3 class="tip-title font-display">욕설·위험한 내용은 안 돼요</h3>
+          <p class="tip-desc">나쁜 말이나 해로운 내용은 넣지 마세요</p>
+        </div>
+        <div class="tip-card tip-frog">
+          <div class="tip-emoji" aria-hidden="true">🐸</div>
+          <h3 class="tip-title font-display">원하는 형식을 말해줘요</h3>
+          <p class="tip-desc">"표로 만들어줘", "5줄 요약해줘"처럼 결과 형태를 알려주면 훨씬 편해요</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. 메인 미션 카드 -->
+    <section class="mission-card">
+      <div class="mission-header-row">
+        <div class="mission-info">
+          <div id="missionEmoji" class="mission-emoji" aria-hidden="true">🦉</div>
+          <div>
+            <span id="missionBadge" class="mission-badge">미션 1</span>
+            <h2 id="missionTitle" class="mission-title">환경 보호 방법</h2>
+            <p id="missionDesc" class="mission-desc">지구를 지키는 쉬운 방법들이 궁금해요. AI에게 어떻게 부탁하면 좋을까요?</p>
+          </div>
+        </div>
+
+        <div class="mission-controls">
+          <select id="missionSelect" class="mission-select" aria-label="미션 선택" onchange="selectMission(Number(this.value))"></select>
+          <button type="button" class="mode-toggle-pill" onclick="toggleSettingsDrawer()">
+            ⚙️ 채점 방식: <span id="currentModeLabel">코드 자동분석</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 채점 방식 설정 서랍 (교사용 설정, 기본 접힘) -->
+      <div id="settingsDrawer" class="settings-drawer hidden">
+        <div class="settings-row">
+          <div class="mode-tabs">
+            <button type="button" id="tabCode" class="mode-tab active" onclick="setGradingMode('code')">
+              ⚡ 코드 분석 모드 (API 불필요 · 기본)
+            </button>
+            <button type="button" id="tabGemini" class="mode-tab" onclick="setGradingMode('gemini')">
+              🤖 Gemini 토큰 API 모드
+            </button>
+          </div>
+          <span id="modeHelpText" style="font-size: 0.82rem; color: var(--muted-foreground);">
+            API 키 없이도 내장된 15개 미션 루브릭 코드로 학생의 프롬프트를 분석하고 수정 방향을 알려줍니다.
+          </span>
+        </div>
+        <div id="geminiInputRow" class="api-input-row hidden">
+          <input
+            type="password"
+            id="geminiApiKeyInput"
+            class="api-key-input"
+            placeholder="Google Gemini API Key (AIza...) 입력"
+          />
+          <select id="geminiModelSelect" class="mission-select" style="background: var(--card);">
+            <option value="gemini-2.5-flash">gemini-2.5-flash (추천)</option>
+            <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 생각 열기 힌트 (정답 문장을 주지 않고 스스로 생각할 포인트를 질문으로 제시) -->
+      <div class="hint-row">
+        <button type="button" id="hintBtn" class="hint-btn" onclick="toggleHint()">
+          💡 어떻게 쓸지 막막할 때: 생각 힌트 보기
+        </button>
+      </div>
+
+      <div id="hintBox" class="hint-box hidden"></div>
+
+      <!-- 프롬프트 입력창 -->
+      <div class="input-section">
+        <div class="input-label-row">
+          <label for="promptTextarea" class="input-label">✍️ 나의 프롬프트</label>
+          <span id="charCount" class="char-count">0자</span>
+        </div>
+        <textarea
+          id="promptTextarea"
+          class="prompt-textarea"
+          rows="4"
+          maxlength="4000"
+          placeholder="이 미션에 맞는 프롬프트를 스스로 생각해서 작성해보세요!"
+          oninput="onPromptInput()"
+        ></textarea>
+      </div>
+
+      <div id="errorAlert" class="error-msg hidden"></div>
+
+      <div class="button-row">
+        <button type="button" id="gradeBtn" class="btn-grade" onclick="handleGrade()">
+          채점하기 🎯
+        </button>
+        <button type="button" class="btn-next" onclick="handleNextRandomMission()">
+          다른 미션 보기 🔄
+        </button>
+      </div>
+
+      <!-- 채점 결과 카드 -->
+      <div id="resultCard" class="result-container hidden"></div>
+    </section>
+
+    <!-- 4. 나의 진행 현황 -->
+    <section id="historySection" class="progress-history-card hidden">
+      <div class="history-top">
+        <h2 class="font-display" style="font-size: 1.25rem;">📊 나의 진행 현황</h2>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <div id="historyBadge" class="result-grade-pill" style="margin-top: 0;">총 0번 도전 · 평균 0점</div>
+          <button type="button" class="small-pill-btn" onclick="clearHistory()">기록 초기화</button>
+        </div>
+      </div>
+      <ul id="historyList" class="history-items"></ul>
+    </section>
+
+    <footer class="page-footer">
+      🐾 교사를 위한 AI 프롬프트 연습소 · AI가 자동으로 채점해드려요
+    </footer>
+  </main>
+
+  <script>
+    // =========================================================================
+    // 1. 15개 미션 및 채점 루브릭·수정 가이드 데이터셋 (정답 노출 없이 코칭 질문만 제공)
+    // =========================================================================
+    const MISSIONS_DATA = [
+      {
+        id: 1,
+        emoji: "🦉",
+        title: "환경 보호 방법",
+        category: "생활·교양",
+        desc: "지구를 지키는 쉬운 방법들이 궁금해요. AI에게 어떻게 부탁하면 좋을까요?",
+        thinkingQuestions: [
+          "🐨 역할: 환경을 잘 아는 어떤 선생님이나 전문가에게 설명해달라고 할까요?",
+          "🐼 구체성: 누가(예: 학생이), 어디에서(학교나 집에서) 실천할 수 있는 방법 몇 가지가 궁금한가요?",
+          "🐸 형식: 결과를 표, 번호 목록, 몇 줄 요약 중 어떤 모양으로 정리해달라고 할까요?"
+        ],
+        topicKeywords: ["환경", "지구", "보호", "쓰레기", "분리수거", "재활용", "일회용", "탄소", "절약", "실천", "자연", "에코", "기후", "오염"],
+        guideRole: "환경을 잘 아는 직업이나 역할(예: 환경 선생님, 과학자 등)을 떠올려 'OO처럼 설명해줘'라고 덧붙여보세요.",
+        guideDetail: "'누가(학생이)', '어디에서(집이나 학교에서)' 실천할 수 있는 방법인지, 그리고 '몇 가지'를 알고 싶은지 숫자를 넣어보세요.",
+        guideFormat: "알려준 방법들을 한눈에 보기 쉽도록 '번호 목록'이나 '표', 또는 '실천 이유와 함께' 정리해달라고 요청해보세요."
+      },
+      {
+        id: 2,
+        emoji: "🐰",
+        title: "간단한 간식 레시피",
+        category: "요리·생활",
+        desc: "집에 있는 재료로 만들 수 있는 간식이 먹고 싶어요!",
+        thinkingQuestions: [
+          "🐨 역할: 요리를 쉽게 가르쳐주는 누구에게 물어보면 좋을까요?",
+          "🐼 구체성: 지금 냉장고에 어떤 재료가 있나요? 몇 분 안에, 불을 안 쓰고 만들 수 있어야 하나요?",
+          "🐸 형식: 준비물과 요리 순서를 어떤 형태로 정리해달라고 할까요?"
+        ],
+        topicKeywords: ["간식", "레시피", "요리", "계란", "달걀", "밀가루", "우유", "식빵", "빵", "재료", "냉장고", "만들기", "음식", "간단", "전자레인지", "치즈", "감자"],
+        guideRole: "요리를 친절하게 알려주는 역할(예: 요리사, 요리 선생님 등)과 내 요리 실력(초보자 눈높이)을 적어보세요.",
+        guideDetail: "집에 있는 '구체적인 재료 이름 2~3가지'와 '조리 시간(예: 10분 이내)' 또는 '조리 도구' 조건을 함께 적어보세요.",
+        guideFormat: "요리 과정을 따라 하기 쉽도록 '[재료]와 [만드는 순서]로 나누어 단계별 번호로 알려줘'처럼 형식을 정해보세요."
+      },
+      {
+        id: 3,
+        emoji: "🐬",
+        title: "외국어 공부 방법",
+        category: "학습·진로",
+        desc: "영어나 다른 외국어를 재미있게 배우고 싶어요!",
+        thinkingQuestions: [
+          "🐨 역할: 외국어 공부를 도와주는 어떤 코치나 선생님에게 질문할까요?",
+          "🐼 구체성: 어떤 외국어를, 하루에 몇 분씩, 어떤 수준(초보자 등)에서 공부하고 싶나요?",
+          "🐸 형식: 공부 계획을 시간표나 단계별 목록 중 어떻게 받아보고 싶나요?"
+        ],
+        topicKeywords: ["영어", "외국어", "공부", "단어", "회화", "일본어", "중국어", "스페인어", "언어", "발음", "듣기", "말하기", "초보", "학습", "암기"],
+        guideRole: "외국어를 잘 가르쳐주는 역할(예: 영어 선생님, 공부 코치)과 배우는 사람의 수준(예: 초보자 눈높이)을 넣어보세요.",
+        guideDetail: "하루에 투자할 수 있는 '공부 시간(예: 하루 30분)'과 집중하고 싶은 영역(단어, 회화, 듣기 등), 원하는 방법의 개수를 적어보세요.",
+        guideFormat: "실천하기 편하도록 '단계별 순서'나 '시간대별/요일별 계획표 형식'으로 만들어달라고 덧붙여보세요."
+      },
+      {
+        id: 4,
+        emoji: "🦋",
+        title: "스트레스 해소 방법",
+        category: "마음·건강",
+        desc: "요즘 피곤하고 스트레스가 쌓였어요. 도움이 되는 방법을 알고 싶어요.",
+        thinkingQuestions: [
+          "🐨 역할: 내 마음을 따뜻하게 이해해주는 누구에게 조언을 구할까요?",
+          "🐼 구체성: 언제, 어디서(예: 집에서 혼자), 얼마나 짧은 시간 안에 할 수 있는 방법이어야 하나요?",
+          "🐸 형식: 어떤 말투와 어떤 목록 형태로 정리해주면 마음이 편해질까요?"
+        ],
+        topicKeywords: ["스트레스", "피곤", "휴식", "마음", "기분", "해소", "힐링", "긴장", "불안", "우울", "여유", "취미", "명상", "편안", "감정"],
+        guideRole: "마음을 돌봐주는 역할(예: 심리 상담 선생님, 다정한 친구)과 원하는 말투(따뜻하고 부드럽게)를 지정해보세요.",
+        guideDetail: "왜 스트레스를 받았는지(상황)와 '집에서 혼자', '10분 안에'처럼 내가 바로 실천할 수 있는 조건과 개수를 적어보세요.",
+        guideFormat: "읽기 편하도록 '번호를 매긴 목록'이나 '방법과 좋은 점을 짝지은 표' 등 원하는 정리 방식을 적어보세요."
+      },
+      {
+        id: 5,
+        emoji: "🐻",
+        title: "책 추천",
+        category: "독서·문화",
+        desc: "요즘 읽을 책을 고르기가 어려워요. AI에게 추천받아봐요!",
+        thinkingQuestions: [
+          "🐨 역할: 책을 많이 알고 있는 누구(예: 도서관 사서 선생님)에게 추천받을까요?",
+          "🐼 구체성: 내가 좋아하는 분야(판타지, 추리, 과학 등)는 무엇이고, 몇 권을 추천받고 싶나요?",
+          "🐸 형식: 책 제목 외에 줄거리나 추천 이유를 어떤 모양으로 정리해달라고 할까요?"
+        ],
+        topicKeywords: ["책", "독서", "소설", "추천", "판타지", "도서", "줄거리", "작가", "읽기", "과학책", "추리", "동화", "에세이", "도서관", "재미있는"],
+        guideRole: "책을 잘 골라주는 역할(예: 도서관 사서 선생님)과 책을 읽을 사람의 나이·수준(예: 학생이 읽기 좋은)을 적어보세요.",
+        guideDetail: "내가 좋아하는 '장르나 분위기(판타지, 모험, 추리 등)'와 추천받고 싶은 '정확한 권수(예: 3권)'를 밝혀보세요.",
+        guideFormat: "단순히 책 제목만 묻지 말고 '간단한 줄거리와 추천 이유를 포함해 표나 목록으로 정리해줘'처럼 형태를 정해보세요."
+      },
+      {
+        id: 6,
+        emoji: "🦒",
+        title: "건강한 식습관",
+        category: "마음·건강",
+        desc: "더 건강하게 먹고 싶은데 어떻게 해야 할지 모르겠어요.",
+        thinkingQuestions: [
+          "🐨 역할: 영양과 건강을 잘 아는 어떤 전문가에게 물어볼까요?",
+          "🐼 구체성: 평소 내 식습관 고민(군것질, 편식 등)은 무엇이고, 실천 팁 몇 가지를 알고 싶나요?",
+          "🐸 형식: 매일 확인하기 좋은 체크리스트나 표 중 어떤 형식이 좋을까요?"
+        ],
+        topicKeywords: ["건강", "식습관", "음식", "식단", "영양", "야채", "채소", "아침밥", "물", "편식", "다이어트", "체력", "간식", "골고루", "식사"],
+        guideRole: "건강과 식단을 담당하는 역할(예: 학교 영양사 선생님, 의사 선생님)처럼 친절하게 알려달라고 적어보세요.",
+        guideDetail: "누가 실천할 것인지(예: 바쁜 학생이, 편식하는 사람이)와 일상에서 지킬 수 있는 습관 '몇 가지'가 필요한지 숫자를 넣어보세요.",
+        guideFormat: "냉장고나 책상에 붙여두고 볼 수 있도록 '체크리스트 형식'이나 '번호 목록'으로 정리해달라고 요청해보세요."
+      },
+      {
+        id: 7,
+        emoji: "🐳",
+        title: "여행 계획",
+        category: "생활·교양",
+        desc: "주말에 짧은 여행을 가고 싶어요. AI에게 도움을 받아봐요!",
+        thinkingQuestions: [
+          "🐨 역할: 여행 코스를 잘 짜는 누구에게 부탁하면 좋을까요?",
+          "🐼 구체성: 누구와 함께, 어느 지역으로, 며칠 동안(당일치기/1박 2일) 가는 여행인가요?",
+          "🐸 형식: 오전·오후·저녁 코스를 어떤 시간표나 일정표 모양으로 받고 싶나요?"
+        ],
+        topicKeywords: ["여행", "주말", "계획", "일정", "코스", "관광", "가족", "기차", "바다", "서울", "근교", "1박", "당일치기", "명소", "맛집", "나들이"],
+        guideRole: "여행을 안내하는 전문가(예: 여행 가이드) 역할을 정해주고 알기 쉽게 설명해달라고 적어보세요.",
+        guideDetail: "'누구와(가족과, 친구와)', '어느 지역으로', '며칠 동안(당일치기 또는 1박 2일)' 가는지 구체적인 여행 조건을 넣어보세요.",
+        guideFormat: "여행지에서 바로 참고할 수 있도록 '오전·오후 시간대별 일정표'나 '순서대로 정리된 코스 목록' 형식을 지정해보세요."
+      },
+      {
+        id: 8,
+        emoji: "🦊",
+        title: "운동 루틴",
+        category: "마음·건강",
+        desc: "운동을 시작하고 싶은데 뭐부터 해야 할지 막막해요.",
+        thinkingQuestions: [
+          "🐨 역할: 운동을 안전하게 가르쳐주는 누구에게 루틴을 짜달라고 할까요?",
+          "🐼 구체성: 어디에서(집에서), 기구 없이, 몇 분 동안 할 수 있는 운동인가요?",
+          "🐸 형식: 동작 이름과 운동 시간, 순서를 어떤 표나 단계로 보여달라고 할까요?"
+        ],
+        topicKeywords: ["운동", "스트레칭", "루틴", "체력", "근력", "유산소", "홈트", "집에서", "몸", "자세", "건강", "초보", "다이어트", "체조", "분"],
+        guideRole: "운동을 지도하는 역할(예: 체육 선생님, 운동 코치)과 내 운동 수준(예: 운동 초보자)을 함께 적어보세요.",
+        guideDetail: "'장소(집에서)', '조건(기구 없이, 층간소음 없이)', '운동 시간(예: 15분, 20분)'과 동작 개수를 구체적으로 적어보세요.",
+        guideFormat: "따라 하기 쉽도록 '준비운동-본운동-마무리운동 단계별 순서'나 '시간과 동작 방법이 적힌 표'로 요청해보세요."
+      },
+      {
+        id: 9,
+        emoji: "🐸",
+        title: "위로 메시지",
+        category: "관계·소통",
+        desc: "힘든 시간을 보내는 친구에게 따뜻한 말을 전하고 싶어요.",
+        thinkingQuestions: [
+          "🐨 역할: 어떤 마음가짐(예: 다정한 단짝 친구의 마음)으로 글을 쓰면 좋을까요?",
+          "🐼 구체성: 친구가 지금 왜 속상하거나 힘든 상황인가요?",
+          "🐸 형식: 몇 줄 정도의 길이로, 몇 가지 버전의 메시지를 만들어달라고 할까요?"
+        ],
+        topicKeywords: ["위로", "친구", "메시지", "편지", "응원", "힘이", "힘든", "속상", "슬픈", "시험", "격려", "따뜻", "마음", "실수", "우정"],
+        guideRole: "'다정한 단짝 친구의 입장에서' 또는 '따뜻하고 진심 어린 말투로'처럼 글의 화자와 분위기를 정해보세요.",
+        guideDetail: "친구가 겪은 구체적인 상황(예: 시험 결과가 아쉬울 때, 대회에서 실수했을 때 등)을 설명해주면 훨씬 마음에 와닿는 글이 나와요.",
+        guideFormat: "보내기 알맞은 분량(예: 3~4줄 이내의 짧은 문자 메시지 형식)과 원하는 예시 개수(예: 3가지 버전)를 지정해보세요."
+      },
+      {
+        id: 10,
+        emoji: "🦁",
+        title: "절약 생활 방법",
+        category: "생활·교양",
+        desc: "지출을 줄이고 저축을 늘리고 싶어요.",
+        thinkingQuestions: [
+          "🐨 역할: 돈 관리와 저축을 쉽게 알려주는 누구에게 물어볼까요?",
+          "🐼 구체성: 누가(학생이 용돈을 / 직장인이 생활비를) 아끼려는 상황이고, 몇 가지 팁이 필요한가요?",
+          "🐸 형식: 실천 방법과 기대 효과를 어떤 목록이나 표로 정리해달라고 할까요?"
+        ],
+        topicKeywords: ["절약", "저축", "용돈", "돈", "지출", "생활비", "소비", "습관", "모으기", "경제", "가계부", "아껴", "낭비", "계획"],
+        guideRole: "경제를 쉽게 가르쳐주는 역할(예: 경제 교육 선생님)과 설명 눈높이(학생도 이해하기 쉽게)를 지정해보세요.",
+        guideDetail: "현재 소비 고민(예: 군것질이나 충동구매로 용돈을 다 쓰는 상황)과 실천 가능한 절약 팁 '몇 가지'를 원하는지 적어보세요.",
+        guideFormat: "하나씩 실천해볼 수 있도록 '번호를 매긴 단계별 목록'이나 '용돈 관리 계획표 형식'으로 정리해달라고 해보세요."
+      },
+      {
+        id: 11,
+        emoji: "🐶",
+        title: "과학 탐구 주제 찾기",
+        category: "학습·진로",
+        desc: "학교 과학 탐구 발표 대회에 나갈 재미있는 실험 주제를 찾고 싶어요!",
+        thinkingQuestions: [
+          "🐨 역할: 과학 실험을 재미있게 지도해주시는 누구에게 추천받을까요?",
+          "🐼 구체성: 어디에서 구할 수 있는 어떤 재료(안전한 집 안 재료 등)로 하는 실험 몇 가지가 필요한가요?",
+          "🐸 형식: 실험 제목 외에 준비물, 실험 순서, 과학 원리를 어떻게 정리해달라고 할까요?"
+        ],
+        topicKeywords: ["과학", "실험", "탐구", "주제", "발표", "원리", "관찰", "가설", "재료", "교실", "신기한", "현상", "아이디어"],
+        guideRole: "과학을 쉽고 재미있게 알려주는 역할(예: 과학 선생님)을 지정해보세요.",
+        guideDetail: "위험한 약품 대신 '집이나 교실에서 쉽게 구할 수 있는 안전한 재료'라는 조건과 추천받을 주제 '개수(예: 3가지)'를 넣어보세요.",
+        guideFormat: "탐구 보고서를 쓰기 편하도록 '[실험 주제 / 준비물 / 실험 순서 / 과학 원리]를 표나 항목별 목록으로 정리해줘'라고 적어보세요."
+      },
+      {
+        id: 12,
+        emoji: "🐼",
+        title: "역사 인물 인터뷰하기",
+        category: "학습·진로",
+        desc: "역사 속 위인이 되어 대답해 달라고 AI에게 역할을 맡겨보고 싶어요!",
+        thinkingQuestions: [
+          "🐨 역할: AI에게 어떤 역사 속 위인(예: 세종대왕, 이순신 장군 등)이 되어달라고 할까요?",
+          "🐼 구체성: 그 위인의 어떤 업적이나 당시의 마음을 물어보고 싶나요?",
+          "🐸 형식: 백과사전 설명 대신 질문과 답변이 오가는 어떤 형식으로 써달라고 할까요?"
+        ],
+        topicKeywords: ["세종대왕", "이순신", "역사", "인물", "위인", "인터뷰", "한글", "장군", "시대", "조선", "질문", "업적", "백성", "발명", "장영실"],
+        guideRole: "'네가 조선 시대의 OO(위인 이름)이 되어 대답해줘'처럼 AI에게 명확한 역사 인물 역할과 말투를 부여해보세요.",
+        guideDetail: "그 위인의 구체적인 업적이나 사건(예: 한글 창제 이유, 거북선 제작 등) 중 무엇이 궁금한지, 몇 가지 질문을 나눌지 적어보세요.",
+        guideFormat: "실제 인터뷰처럼 생생하게 읽히도록 '학생 기자와 주고받는 인터뷰 대화문(문답) 형식으로 써줘'라고 지정해보세요."
+      },
+      {
+        id: 13,
+        emoji: "🐨",
+        title: "우리 반 학급 규칙 만들기",
+        category: "관계·소통",
+        desc: "친구들과 다투지 않고 즐겁게 지낼 수 있는 학급 규칙 아이디어를 얻고 싶어요.",
+        thinkingQuestions: [
+          "🐨 역할: 학급 회의를 도와주는 누구에게 아이디어를 부탁할까요?",
+          "🐼 구체성: 우리 반에서 특히 중요하게 지켰으면 하는 가치(배려, 고운 말 등)와 규칙 개수는 몇 개인가요?",
+          "🐸 형식: 딱딱한 금지 명령 대신 어떤 문장이나 표어로 정리해달라고 할까요?"
+        ],
+        topicKeywords: ["학급", "규칙", "우리 반", "약속", "교실", "친구", "배려", "예절", "학교", "존중", "다툼", "질서", "청소", "소통"],
+        guideRole: "교실 생활을 잘 아는 역할(예: 다정한 담임 선생님, 학급 회의 진행자)을 정해보세요.",
+        guideDetail: "친구들과 어떤 교실 분위기(서로 배려하기, 고운 말 쓰기 등)를 만들고 싶은지와 필요한 약속 '개수(예: 5가지)'를 적어보세요.",
+        guideFormat: "교실 벽에 붙여두기 좋도록 '긍정적인 한 줄 표어와 실천 방법을 짝지어 번호 목록이나 표로 만들어줘'라고 덧붙여보세요."
+      },
+      {
+        id: 14,
+        emoji: "🐯",
+        title: "독서 감상문 개요 짜기",
+        category: "독서·문화",
+        desc: "책을 읽고 독서 감상문을 쓰려는데 어떤 순서로 생각을 정리할지 도움을 받고 싶어요.",
+        thinkingQuestions: [
+          "🐨 역할: 글쓰기를 친절하게 지도해주는 누구에게 도움을 요청할까요?",
+          "🐼 구체성: 글을 통째로 대신 써달라고 하는 대신, 내가 스스로 쓸 수 있게 무엇(개요, 생각 질문 등)을 알려달라고 할까요?",
+          "🐸 형식: 처음-가운데-끝 등 몇 단계 구조로 정리해달라고 할까요?"
+        ],
+        topicKeywords: ["독서", "감상문", "책", "개요", "글쓰기", "줄거리", "느낀", "생각", "어린 왕자", "주인공", "교훈", "처음", "가운데", "끝", "문단"],
+        guideRole: "글쓰기를 도와주는 역할(예: 국어 선생님, 글쓰기 코치)처럼 학생 눈높이에서 안내해달라고 적어보세요.",
+        guideDetail: "감상문을 대신 써달라고 하지 말고, 내가 읽은 책에 대해 스스로 생각을 정리할 수 있도록 '문단별 들어갈 내용과 생각 질문'을 요청해보세요.",
+        guideFormat: "글의 뼈대를 잡기 쉽도록 '[처음 - 가운데 - 끝] 단계별 개요표와 각 단계별 질문 목록' 형태로 정리해달라고 해보세요."
+      },
+      {
+        id: 15,
+        emoji: "🐹",
+        title: "나만의 게임 아이디어 기획",
+        category: "창작·코딩",
+        desc: "스크래치나 엔트리로 만들 수 있는 재미있는 미니 게임 아이디어를 구상하고 싶어요!",
+        thinkingQuestions: [
+          "🐨 역할: 재미있는 게임을 만드는 어떤 전문가에게 아이디어를 물어볼까요?",
+          "🐼 구체성: 어떤 코딩 도구(엔트리, 스크래치 등)로, 어떤 주제의 미니 게임 몇 가지를 기획하고 싶나요?",
+          "🐸 형식: 게임 제목 외에 캐릭터, 조작법, 규칙을 어떤 기획서 형태로 정리해달라고 할까요?"
+        ],
+        topicKeywords: ["게임", "코딩", "스크래치", "엔트리", "아이디어", "기획", "캐릭터", "규칙", "점수", "장애물", "스테이지", "미니게임", "만들기"],
+        guideRole: "게임을 설계하는 역할(예: 게임 기획자, 코딩 선생님)과 내 코딩 실력(초보자도 만들 수 있게)을 함께 적어보세요.",
+        guideDetail: "사용할 프로그램(스크래치, 엔트리 등)과 게임의 주제(예: 환경 보호, 우주 탐험 등), 추천받을 아이디어 개수를 구체적으로 적어보세요.",
+        guideFormat: "실제로 코딩할 때 보고 만들 수 있도록 '[게임 이름 / 캐릭터 / 조작 방법 / 점수 규칙] 항목으로 나누어 표로 정리해줘'처럼 형식을 정해보세요."
+      }
+    ];
+
+    // =========================================================================
+    // 2. 코드 기반 루브릭 분석 엔진 & 수정 방향(Revision Guide) 생성기
+    // =========================================================================
+    const PII_PATTERNS = [
+      { name: "전화번호", regex: /(01[016789][-\s.]?\d{3,4}[-\s.]?\d{4}|\b\d{2,3}-\d{3,4}-\d{4}\b)/ },
+      { name: "주민등록번호", regex: /\b\d{6}[-\s]?[1-4]\d{6}\b/ },
+      { name: "이메일 주소", regex: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/ },
+      { name: "상세 집 주소", regex: /([가-힣]+(시|도)\s+[가-힣]+(시|군|구)\s+[가-힣0-9]+(동|읍|면|로|길)|\b\d{1,4}동\s*\d{1,4}호\b|[가-힣]{2,10}아파트)/ },
+      { name: "학교명·학년·반 정보", regex: /([가-힣]{2,10}(초등학교|중학교|고등학교|초교)|\b\d{1,2}학년\s*\d{1,2}반(\s*\d{1,2}번)?)/ },
+      { name: "실명 자기소개", regex: /(내\s*이름은\s*[가-힣]{2,4}|제\s*이름은\s*[가-힣]{2,4}|나는\s*[가-힣]{2,4}(이야|인데|라고\s*해)|저는\s*[가-힣]{2,4}입니다)/ }
+    ];
+
+    const UNSAFE_WORDS = [
+      "바보", "멍청이", "짜증나", "죽어라", "죽어버려", "죽이고", "폭탄", "해킹", "바이러스",
+      "욕설", "꺼져", "닥쳐", "미친", "병신", "씨발", "시발", "개새", "존나",
+      "젠장", "엿먹", "때리", "훔치", "범죄", "자살", "마약", "도박"
+    ];
+
+    const CHEATING_PATTERNS = [
+      /숙제\s*(대신|통째로)\s*(다\s*)?(해\s*줘|써\s*줘)/,
+      /그대로\s*(베껴|베낄|복사해서)\s*낼/,
+      /독서\s*감상문\s*(대신|통째로)\s*(다\s*)?써\s*줘/
+    ];
+
+    const EXPLICIT_ROLES = [
+      "선생님", "교사", "요리사", "셰프", "전문가", "코치", "가이드", "박사",
+      "사서", "상담사", "상담가", "작가", "기획자", "트레이너", "영양사", "기자",
+      "진행자", "세종대왕", "이순신", "장영실", "위인", "단짝", "친구처럼",
+      "친구의 입장", "언니처럼", "형처럼", "누나처럼", "오빠처럼", "부모님처럼",
+      "입장에서", "역할", "되어서", "되어", "처럼 설명", "처럼 알려", "처럼 추천",
+      "처럼 이야기", "처럼 도와", "처럼 안내", "처럼 아이디어", "너는 ", "네가 "
+    ];
+
+    const AUDIENCE_AND_TONE = [
+      "초등학생", "중학생", "고등학생", "학생", "어린이", "청소년", "초보자",
+      "입문자", "왕초보", "친구에게", "친구를", "눈높이", "쉬운 말", "쉽게",
+      "이해하기 쉽", "알기 쉽", "친절하", "다정하", "따뜻하", "부드럽", "재미있",
+      "자세하", "진심", "인자한", "흥미진진", "스스로"
+    ];
+
+    const FORMAT_PATTERNS = [
+      { label: "표(테이블) 형식", regex: /(표로|표\s*형식|테이블|비교표|계획표|일정표|시간표|개요표|기입장)/ },
+      { label: "번호·목록 정리", regex: /(목록|리스트|번호|1번부터|체크리스트|항목별로|나열)/ },
+      { label: "단계별·순서대로", regex: /(단계별|순서대로|차례대로|과정별|처음.*가운데.*끝|\d+\s*단계)/ },
+      { label: "분량·줄 수 지정", regex: /(\d+\s*줄|세\s*줄|다섯\s*줄|짧게|요약|한\s*문단|\d+\s*문장|한눈에)/ },
+      { label: "대화·인터뷰·메시지·구호 형식", regex: /(대본|대화문|인터뷰|문답|질문과\s*답변|편지\s*형식|메시지\s*형식|문자\s*메시지|구호)/ },
+      { label: "세부 구성 항목 지정", regex: /(\[.+\]|구분해서|나누어|함께\s*알려|이유와\s*함께|줄거리도|원리와\s*함께|규칙과\s*함께|질문\s*\d+)/ }
+    ];
+
+    const QUANTITY_REGEX = /(\d+\s*(가지|개|권|줄|문장|분|시간|박|일|단계|번|곳|명|원|문답|일차)|한\s*가지|두\s*가지|세\s*가지|네\s*가지|다섯\s*가지)/g;
+    const CONTEXT_PATTERNS = [
+      /할\s*수\s*있/, /집에서/, /교실에서/, /학교/, /혼자/, /가족/, /친구/,
+      /냉장고/, /재료/, /소음/, /기구\s*없이/, /돈\s*들지/, /안전/,
+      /일상/, /바쁜/, /시험/, /대회/, /방학/, /주말/, /하루/, /매일/, /좋아하/,
+      /고민/, /속상/, /기차/, /용돈/, /블록\s*코딩/, /스스로/, /창제/
+    ];
+
+    function gradePromptByCode(mission, rawPrompt) {
+      const prompt = (rawPrompt || "").trim();
+      const revisionGuides = [];
+
+      // 1. 🦊 개인정보 보호 (20점)
+      const detectedPII = [];
+      PII_PATTERNS.forEach((item) => {
+        if (item.regex.test(prompt)) detectedPII.push(item.name);
+      });
+
+      let piiScore = 20;
+      let piiOk = true;
+      let piiComment = "이름, 전화번호, 주소, 학교명 같은 개인정보를 넣지 않고 안전하게 작성했어요!";
+
+      if (detectedPII.length > 0) {
+        piiOk = false;
+        piiScore = Math.max(0, 20 - detectedPII.length * 10);
+        piiComment = `프롬프트에 [${detectedPII.join(", ")}]처럼 보이는 개인정보가 포함되어 있어요.`;
+        revisionGuides.push(
+          `🦊 [개인정보 빼기]: 작성한 글에서 ${detectedPII.join(", ")} 부분을 지우고, '학생', '우리 동네'처럼 개인을 특정할 수 없는 일반적인 단어로 바꾸어 보세요.`
+        );
+      }
+
+      // 4. 🦁 바른 말·안전성 (20점)
+      const foundUnsafe = UNSAFE_WORDS.filter((w) => prompt.includes(w));
+      const foundCheating = CHEATING_PATTERNS.some((rx) => rx.test(prompt));
+      const hasJamoSpam = /[ㄱ-ㅎㅏ-ㅣ]{3,}/.test(prompt);
+      const hasPoliteRequest = /(해\s*줘|해\s*주세요|알려\s*줘|알려\s*주세요|추천해|만들어|설명해|부탁|작성해|짜\s*줘|써\s*줘|도와줘|가르쳐|구상해|제안해)/.test(prompt);
+
+      let safeScore = 20;
+      let safeOk = true;
+      let safeComment = "바르고 고운 말로 안전하고 예의 바르게 요청했어요!";
+
+      if (foundUnsafe.length > 0) {
+        safeOk = false;
+        safeScore = 0;
+        safeComment = `부적절하거나 공격적인 표현(${foundUnsafe.join(", ")})이 포함되어 있어요.`;
+        revisionGuides.push(
+          `🦁 [바른 말로 고치기]: 부적절한 표현(${foundUnsafe.join(", ")})을 모두 지우고, 예의 바르고 안전한 문장으로 다시 적어보세요.`
+        );
+      } else if (foundCheating) {
+        safeOk = false;
+        safeScore = 10;
+        safeComment = "숙제나 글을 통째로 대신 써달라고 요청했어요.";
+        revisionGuides.push(
+          "🦁 [스스로 생각할 도움 요청하기]: '대신 다 써줘'라고 하기보다, 내가 직접 글을 쓸 수 있도록 '글쓰기 순서(개요)'나 '생각해볼 질문'을 알려달라고 고쳐보세요."
+        );
+      } else if (hasJamoSpam) {
+        safeOk = false;
+        safeScore = 12;
+        safeComment = "'ㅋㅋㅋ' 등 자음·모음 남발이 포함되어 있어요.";
+        revisionGuides.push(
+          "🦁 [정확한 문장 쓰기]: 의미 없는 자음·모음을 지우고 AI가 정확히 이해할 수 있는 온전한 문장으로 다듬어보세요."
+        );
+      } else if (!hasPoliteRequest && prompt.length < 10) {
+        safeOk = false;
+        safeScore = 14;
+        safeComment = "단어만 나열하기보다 완전한 문장으로 요청하면 더 좋아요.";
+        revisionGuides.push(
+          "🦁 [문장 완성하기]: 단어만 적기보다 '~을 알려줘', '~을 설명해줘'처럼 끝맺음이 있는 완전한 문장으로 적어보세요."
+        );
+      }
+
+      // 2. 🐼 구체적인 설명 (20점)
+      const matchedKeywords = (mission.topicKeywords || []).filter((kw) => prompt.includes(kw));
+      const quantities = prompt.match(QUANTITY_REGEX) || [];
+      const matchedContexts = CONTEXT_PATTERNS.filter((rx) => rx.test(prompt));
+      const charLen = prompt.length;
+
+      let specScore = 0;
+      if (matchedKeywords.length >= 2) specScore += 7;
+      else if (matchedKeywords.length === 1) specScore += 5;
+      else {
+        const titleWords = mission.title.split(/\s+/);
+        specScore += titleWords.some((tw) => prompt.includes(tw)) ? 4 : 2;
+      }
+
+      if (quantities.length > 0) specScore += 5;
+      if (matchedContexts.length >= 1) specScore += 4;
+      if (charLen >= 38) specScore += 4;
+      else if (charLen >= 22) specScore += 2;
+      else if (charLen >= 10) specScore += 1;
+
+      if (charLen <= 18 && quantities.length === 0 && matchedContexts.length === 0) {
+        specScore = Math.min(specScore, 7);
+      }
+      specScore = Math.min(20, specScore);
+      const specOk = specScore >= 14;
+      let specComment = "";
+
+      if (matchedKeywords.length === 0) {
+        specScore = Math.min(specScore, 8);
+        specComment = `현재 미션 주제인 '${mission.title}'와 관련된 핵심 단어가 부족해요.`;
+        revisionGuides.push(
+          `🐼 [미션 주제 & 구체적 조건 넣기]: '${mission.title}' 미션에 맞는 핵심 단어를 넣고, ${mission.guideDetail}`
+        );
+      } else if (specScore >= 18) {
+        specComment = `미션 주제(${matchedKeywords.slice(0, 3).join(", ")})와 구체적인 수량·상황 조건까지 아주 자세하게 설명했어요!`;
+      } else if (specScore >= 14) {
+        specComment = "원하는 내용을 비교적 잘 적었지만, 조건을 조금 더 구체화할 수 있어요.";
+        if (quantities.length === 0) {
+          revisionGuides.push(
+            "🐼 [숫자·개수 덧붙이기]: 몇 가지 방법이나 몇 권, 몇 분 분량이 필요한지 구체적인 '숫자'를 문장에 추가해보세요."
+          );
+        } else {
+          revisionGuides.push(
+            `🐼 [상황 조건 덧붙이기]: ${mission.guideDetail}`
+          );
+        }
+      } else {
+        specComment = "질문이 너무 짧거나 막연해서 AI가 내 상황에 딱 맞는 답을 주기 어려워요.";
+        revisionGuides.push(`🐼 [구체적으로 설명하기]: ${mission.guideDetail}`);
+      }
+
+      // 3. 🐨 역할·눈높이 지정 (20점)
+      const matchedRoles = EXPLICIT_ROLES.filter((r) => prompt.includes(r));
+      const matchedTones = AUDIENCE_AND_TONE.filter((t) => prompt.includes(t));
+
+      let roleScore = 4;
+      if (matchedRoles.length > 0 && (matchedTones.length > 0 || charLen >= 45)) {
+        roleScore = 20;
+      } else if (matchedRoles.length > 0) {
+        roleScore = 17;
+      } else if (matchedTones.length >= 2) {
+        roleScore = 15;
+      } else if (matchedTones.length === 1) {
+        roleScore = 12;
+      }
+
+      const roleOk = roleScore >= 14;
+      let roleComment = "";
+      if (roleScore >= 17) {
+        roleComment = "AI에게 알맞은 역할과 설명 눈높이(말투)를 아주 잘 지정해주었어요!";
+      } else if (roleScore >= 12) {
+        roleComment = `설명 눈높이(${matchedTones.join(", ")})는 적었지만 AI의 역할이 빠졌어요.`;
+        revisionGuides.push(`🐨 [AI 역할 정해주기]: ${mission.guideRole}`);
+      } else {
+        roleComment = "AI가 어떤 입장에서 누구의 눈높이에 맞춰 답해야 할지 적혀 있지 않아요.";
+        revisionGuides.push(`🐨 [역할·눈높이 추가하기]: ${mission.guideRole}`);
+      }
+
+      // 5. 🐸 원하는 형식 제시 (20점)
+      const matchedFormats = FORMAT_PATTERNS.filter((fp) => fp.regex.test(prompt));
+
+      let formatScore = 4;
+      if (matchedFormats.length >= 2 || (matchedFormats.length === 1 && quantities.length > 0 && charLen >= 45)) {
+        formatScore = 20;
+      } else if (matchedFormats.length === 1) {
+        formatScore = 16;
+      } else if (quantities.length > 0) {
+        formatScore = 12;
+      }
+
+      const formatOk = formatScore >= 15;
+      let formatComment = "";
+      if (formatScore >= 16) {
+        formatComment = `원하는 결과 형태(${matchedFormats.map((f) => f.label).join(", ")})를 명확하게 알려주어서 읽기 편한 답변이 나올 거예요!`;
+      } else {
+        formatComment = "결과를 어떤 모양(표, 목록, 순서 등)으로 보여달라는 설명이 부족해요.";
+        revisionGuides.push(`🐸 [출력 형식 정해주기]: ${mission.guideFormat}`);
+      }
+
+      const total = Math.max(0, Math.min(100, piiScore + specScore + roleScore + safeScore + formatScore));
+
+      let feedback = "";
+      if (total >= 90) {
+        feedback = "와우! 스스로 고민해서 프롬프트 작성 5가지 원칙을 모두 훌륭하게 담아냈어요! 👏 AI가 아주 정확하고 읽기 편한 답변을 들려줄 거예요.";
+      } else if (total >= 75) {
+        feedback = "잘 작성했어요! 👍 큰 틀은 아주 좋으니, 아래 '스스로 고쳐쓰기 가이드'를 읽고 부족한 한두 가지 조건만 내 문장에 직접 덧붙여서 100점에 도전해보세요!";
+      } else if (total >= 60) {
+        feedback = "좋은 시작이에요! 🌱 주제는 맞았지만 아직 조건이 조금 짧아요. 아래 '스스로 고쳐쓰기 가이드'를 참고해서 역할과 결과 형식을 내 손으로 직접 추가해볼까요?";
+      } else {
+        feedback = "조금만 더 길고 자세하게 적어볼까요? 💪 단순히 '알려줘'라고만 쓰기보다 아래 '스스로 고쳐쓰기 가이드'에 나온 힌트를 보고 내 프롬프트를 직접 고쳐서 다시 채점해보세요!";
+      }
+
+      return {
+        mode: "code",
+        total,
+        revisionGuides,
+        criteria: [
+          { name: "🦊 개인정보 보호", score: piiScore, max: 20, ok: piiOk, comment: piiComment },
+          { name: "🐼 구체적인 설명", score: specScore, max: 20, ok: specOk, comment: specComment },
+          { name: "🐨 역할·눈높이 지정", score: roleScore, max: 20, ok: roleOk, comment: roleComment },
+          { name: "🦁 바른 말·안전성", score: safeScore, max: 20, ok: safeOk, comment: safeComment },
+          { name: "🐸 원하는 형식 제시", score: formatScore, max: 20, ok: formatOk, comment: formatComment }
+        ],
+        feedback
+      };
+    }
+
+    async function gradePromptByGemini(mission, rawPrompt, apiKey, modelName = "gemini-2.5-flash") {
+      const cleanKey = (apiKey || "").trim();
+      if (!cleanKey) {
+        throw new Error("Gemini API 키가 입력되지 않았습니다. API 키를 입력하거나 '⚡ 코드 분석 모드'를 선택해주세요.");
+      }
+
+      const codeFallback = gradePromptByCode(mission, rawPrompt);
+      const systemInstruction = `당신은 학생들에게 올바른 AI 프롬프트 작성법을 가르치는 친절한 'AI 프롬프트 선생님'입니다.
+중요 원칙: 학생에게 완성된 모범답안 문장을 직접 알려주지 마세요! 학생이 스스로 생각해서 프롬프트를 고쳐 쓸 수 있도록 무엇이 부족한지와 어떻게 보완하면 좋을지 '수정 방향(revisionGuides)'만 안내하세요.
+
+미션 제목: ${mission.title}
+미션 설명: ${mission.desc}
+
+5가지 기준(🦊 개인정보 보호, 🐼 구체적인 설명, 🐨 역할·눈높이 지정, 🦁 바른 말·안전성, 🐸 원하는 형식 제시)을 각각 20점 만점(총 100점)으로 채점하여 아래 JSON으로만 응답하세요:
+{
+  "total": 숫자,
+  "criteria": [
+    { "name": "🦊 개인정보 보호", "score": 숫자, "max": 20, "ok": 불리언, "comment": "평가 설명" },
+    { "name": "🐼 구체적인 설명", "score": 숫자, "max": 20, "ok": 불리언, "comment": "평가 설명" },
+    { "name": "🐨 역할·눈높이 지정", "score": 숫자, "max": 20, "ok": 불리언, "comment": "평가 설명" },
+    { "name": "🦁 바른 말·안전성", "score": 숫자, "max": 20, "ok": 불리언, "comment": "평가 설명" },
+    { "name": "🐸 원하는 형식 제시", "score": 숫자, "max": 20, "ok": 불리언, "comment": "평가 설명" }
+  ],
+  "feedback": "정답을 직접 알려주지 않으면서 격려하고 방향을 짚어주는 선생님 한마디",
+  "revisionGuides": ["학생이 스스로 고쳐 쓸 수 있도록 돕는 구체적인 수정 방안 1", "수정 방안 2"]
+}`;
+
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelName)}:generateContent?key=${encodeURIComponent(cleanKey)}`;
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemInstruction }] },
+          contents: [{ role: "user", parts: [{ text: rawPrompt }] }],
+          generationConfig: { temperature: 0.2, responseMimeType: "application/json" }
+        })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(`Gemini API 오류: ${errData?.error?.message || response.status}`);
+      }
+
+      const data = await response.json();
+      const parsed = JSON.parse(data?.candidates?.[0]?.content?.parts?.[0]?.text || "{}");
+      const calculatedTotal = Array.isArray(parsed.criteria)
+        ? parsed.criteria.reduce((acc, c) => acc + (Number(c.score) || 0), 0)
+        : Number(parsed.total) || codeFallback.total;
+
+      return {
+        mode: "gemini",
+        total: Math.max(0, Math.min(100, calculatedTotal)),
+        revisionGuides: Array.isArray(parsed.revisionGuides) && parsed.revisionGuides.length > 0
+          ? parsed.revisionGuides
+          : codeFallback.revisionGuides,
+        criteria: Array.isArray(parsed.criteria) ? parsed.criteria : codeFallback.criteria,
+        feedback: parsed.feedback || codeFallback.feedback
+      };
+    }
+
+    // =========================================================================
+    // 3. UI 컨트롤러
+    // =========================================================================
+    let currentMissionIndex = 0;
+    let gradingMode = "code";
+    let showHint = false;
+    let attempts = [];
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function getGradeInfo(score) {
+      if (score >= 90) return { emoji: "🏆", label: "최우수" };
+      if (score >= 75) return { emoji: "🥇", label: "우수" };
+      if (score >= 60) return { emoji: "🥈", label: "보통" };
+      return { emoji: "🥉", label: "노력 필요" };
+    }
+
+    function initApp() {
+      const select = document.getElementById("missionSelect");
+      select.innerHTML = MISSIONS_DATA.map(
+        (m, idx) => `<option value="${idx}">${m.emoji} 미션 ${idx + 1}. ${escapeHtml(m.title)}</option>`
+      ).join("");
+      loadHistory();
+      selectMission(0);
+
+      try {
+        const params = new URLSearchParams(window.location.search);
+        if (params.has("mission")) {
+          const mIdx = Number(params.get("mission"));
+          if (!Number.isNaN(mIdx) && mIdx >= 0 && mIdx < MISSIONS_DATA.length) {
+            selectMission(mIdx);
+          }
+        }
+        if (params.has("prompt")) {
+          document.getElementById("promptTextarea").value = params.get("prompt");
+          onPromptInput();
+          handleGrade();
+        }
+      } catch (e) {}
+    }
+
+    function toggleSettingsDrawer() {
+      document.getElementById("settingsDrawer").classList.toggle("hidden");
+    }
+
+    function setGradingMode(mode) {
+      gradingMode = mode;
+      document.getElementById("tabCode").classList.toggle("active", mode === "code");
+      document.getElementById("tabGemini").classList.toggle("active", mode === "gemini");
+      document.getElementById("geminiInputRow").classList.toggle("hidden", mode !== "gemini");
+      document.getElementById("currentModeLabel").textContent =
+        mode === "code" ? "코드 자동분석" : "Gemini API";
+      document.getElementById("modeHelpText").textContent =
+        mode === "code"
+          ? "API 키 없이도 내장된 15개 미션 루브릭 코드로 학생의 프롬프트를 분석하고 수정 방향을 알려줍니다."
+          : "Google Gemini 토큰 API를 호출해 AI 선생님의 실시간 채점과 수정 가이드를 받아옵니다.";
+    }
+
+    function selectMission(index) {
+      currentMissionIndex = index;
+      const mission = MISSIONS_DATA[currentMissionIndex];
+
+      document.getElementById("missionSelect").value = String(index);
+      document.getElementById("missionEmoji").textContent = mission.emoji;
+      document.getElementById("missionBadge").textContent = `미션 ${index + 1}`;
+      document.getElementById("missionTitle").textContent = mission.title;
+      document.getElementById("missionDesc").textContent = mission.desc;
+
+      document.getElementById("promptTextarea").value = "";
+      showHint = false;
+      document.getElementById("hintBox").classList.add("hidden");
+      document.getElementById("hintBtn").textContent = "💡 어떻게 쓸지 막막할 때: 생각 힌트 보기";
+      document.getElementById("errorAlert").classList.add("hidden");
+      document.getElementById("resultCard").classList.add("hidden");
+
+      onPromptInput();
+    }
+
+    function handleNextRandomMission() {
+      let next = Math.floor(Math.random() * MISSIONS_DATA.length);
+      while (next === currentMissionIndex && MISSIONS_DATA.length > 1) {
+        next = Math.floor(Math.random() * MISSIONS_DATA.length);
+      }
+      selectMission(next);
+    }
+
+    function toggleHint() {
+      showHint = !showHint;
+      const mission = MISSIONS_DATA[currentMissionIndex];
+      const hintBox = document.getElementById("hintBox");
+      const btn = document.getElementById("hintBtn");
+
+      if (showHint) {
+        hintBox.innerHTML = `
+          <div class="font-display" style="margin-bottom: 0.35rem;">💭 정답을 베끼지 않고 스스로 문장을 만드는 3가지 생각 힌트!</div>
+          <ul style="padding-left: 1.1rem; margin: 0;">
+            ${mission.thinkingQuestions.map((q) => `<li>${escapeHtml(q)}</li>`).join("")}
+          </ul>
+        `;
+        hintBox.classList.remove("hidden");
+        btn.textContent = "💡 생각 힌트 닫기";
+      } else {
+        hintBox.classList.add("hidden");
+        btn.textContent = "💡 어떻게 쓸지 막막할 때: 생각 힌트 보기";
+      }
+    }
+
+    function onPromptInput() {
+      const text = document.getElementById("promptTextarea").value;
+      document.getElementById("charCount").textContent = `${text.length}자`;
+    }
+
+    function focusForRetry() {
+      const textarea = document.getElementById("promptTextarea");
+      textarea.focus();
+      textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+      textarea.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    async function handleGrade() {
+      const promptText = document.getElementById("promptTextarea").value.trim();
+      const errorAlert = document.getElementById("errorAlert");
+      const gradeBtn = document.getElementById("gradeBtn");
+      const mission = MISSIONS_DATA[currentMissionIndex];
+
+      if (!promptText) {
+        errorAlert.textContent = "프롬프트를 먼저 작성해주세요! ✍️";
+        errorAlert.classList.remove("hidden");
+        return;
+      }
+
+      errorAlert.classList.add("hidden");
+      gradeBtn.disabled = true;
+      gradeBtn.textContent = "채점 중... ⏳";
+
+      try {
+        let result;
+        if (gradingMode === "gemini") {
+          const apiKey = document.getElementById("geminiApiKeyInput").value;
+          const modelName = document.getElementById("geminiModelSelect").value;
+          result = await gradePromptByGemini(mission, promptText, apiKey, modelName);
+        } else {
+          result = gradePromptByCode(mission, promptText);
+        }
+
+        renderResult(result);
+        saveAttempt(mission, result.total, promptText);
+      } catch (err) {
+        errorAlert.textContent = err instanceof Error ? err.message : "채점 중 오류가 발생했습니다.";
+        errorAlert.classList.remove("hidden");
+      } finally {
+        gradeBtn.disabled = false;
+        gradeBtn.textContent = "채점하기 🎯";
+      }
+    }
+
+    function renderResult(result) {
+      const card = document.getElementById("resultCard");
+      const grade = getGradeInfo(result.total);
+      const pct = Math.max(0, Math.min(100, result.total));
+      const guides = result.revisionGuides || [];
+
+      card.innerHTML = `
+        <div class="result-top-center">
+          <div class="result-trophy" aria-hidden="true">${grade.emoji}</div>
+          <div class="result-score-line">
+            <span class="result-score-num">${pct}</span>
+            <span class="result-score-max">/ 100점</span>
+          </div>
+          <div class="result-grade-pill">
+            ${grade.emoji} ${grade.label}
+          </div>
+        </div>
+
+        <div class="result-bar-bg">
+          <div id="resultBarFill" class="result-bar-fill" style="width: ${pct}%;"></div>
+        </div>
+
+        <div class="criteria-stack">
+          ${result.criteria
+            .map(
+              (c) => `
+            <div class="criterion-box">
+              <span class="criterion-check" aria-hidden="true">${c.ok ? "✅" : "❌"}</span>
+              <div class="criterion-content">
+                <div class="criterion-head">
+                  <h4 class="criterion-title">${escapeHtml(c.name)}</h4>
+                  <span class="criterion-pts">${c.score} / ${c.max}점</span>
+                </div>
+                <p class="criterion-desc">${escapeHtml(c.comment)}</p>
+              </div>
+            </div>
+          `
+            )
+            .join("")}
+        </div>
+
+        <div class="teacher-comment-box">
+          <div class="font-display" style="font-size: 0.94rem; margin-bottom: 0.25rem;">💬 선생님 한마디</div>
+          <p style="font-size: 0.9rem; line-height: 1.6;">${escapeHtml(result.feedback)}</p>
+        </div>
+
+        ${
+          guides.length > 0
+            ? `
+          <div class="revision-guide-box">
+            <div class="font-display" style="font-size: 0.98rem;">🛠️ 점수를 올리는 스스로 고쳐쓰기 가이드 (어떻게 수정할지 고민해보세요!)</div>
+            <ul class="revision-guide-list">
+              ${guides.map((g) => `<li class="revision-guide-item">💡 ${escapeHtml(g)}</li>`).join("")}
+            </ul>
+            <button type="button" class="retry-btn" onclick="focusForRetry()">
+              ✍️ 위 가이드를 보고 내 프롬프트 직접 수정하러 가기
+            </button>
+          </div>
+        `
+            : `
+          <div class="revision-guide-box">
+            <div class="font-display" style="font-size: 0.98rem;">🎉 완벽해요! 스스로 모든 요소를 빠짐없이 잘 작성했어요!</div>
+            <p style="font-size: 0.88rem; margin-top: 0.35rem;">'다른 미션 보기 🔄' 버튼을 눌러 새로운 주제에도 도전해보세요!</p>
+          </div>
+        `
+        }
+      `;
+
+      card.classList.remove("hidden");
+    }
+
+    function saveAttempt(mission, total, promptText) {
+      attempts.unshift({
+        missionTitle: mission.title,
+        missionEmoji: mission.emoji,
+        total,
+        prompt: promptText
+      });
+      if (attempts.length > 20) attempts.pop();
+      try {
+        localStorage.setItem("prompt_pal_attempts_v3", JSON.stringify(attempts));
+      } catch (e) {}
+      renderHistory();
+    }
+
+    function loadHistory() {
+      try {
+        const raw = localStorage.getItem("prompt_pal_attempts_v3");
+        if (raw) attempts = JSON.parse(raw) || [];
+      } catch (e) {
+        attempts = [];
+      }
+      renderHistory();
+    }
+
+    function clearHistory() {
+      attempts = [];
+      try {
+        localStorage.removeItem("prompt_pal_attempts_v3");
+      } catch (e) {}
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const section = document.getElementById("historySection");
+      const badge = document.getElementById("historyBadge");
+      const list = document.getElementById("historyList");
+
+      if (!attempts.length) {
+        section.classList.add("hidden");
+        return;
+      }
+
+      section.classList.remove("hidden");
+      const avg = Math.round(attempts.reduce((s, a) => s + a.total, 0) / attempts.length);
+      badge.textContent = `총 ${attempts.length}번 도전 · 평균 ${avg}점`;
+
+      list.innerHTML = attempts
+        .map(
+          (a, i) => `
+        <li class="history-li">
+          <span style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 1.15rem;">${a.missionEmoji}</span>
+            <span class="font-display" style="color: var(--muted-foreground);">#${attempts.length - i}</span>
+            <span>${escapeHtml(a.missionTitle)}</span>
+          </span>
+          <span class="font-display" style="color: var(--primary);">${a.total}점</span>
+        </li>
+      `
+        )
+        .join("");
+    }
+
+    initApp();
+  </script>
+</body>
+</html>
